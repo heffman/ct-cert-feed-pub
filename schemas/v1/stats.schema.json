@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ctfeed://schemas/v1/stats.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "snapshot_date", "totals", "by_log"],
+  "properties": {
+    "schema_version": { "type": "integer", "minimum": 1 },
+    "snapshot_date": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$" },
+    "totals": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["records", "x509", "precert"],
+      "properties": {
+        "records": { "type": "integer", "minimum": 0 },
+        "x509": { "type": "integer", "minimum": 0 },
+        "precert": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "by_log": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["records", "x509", "precert"],
+        "properties": {
+          "records": { "type": "integer", "minimum": 0 },
+          "x509": { "type": "integer", "minimum": 0 },
+          "precert": { "type": "integer", "minimum": 0 }
+        }
+      }
+    }
+  }
+}

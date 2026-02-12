@@ -1,0 +1,110 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ctfeed://schemas/v1/normalized_record.schema.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "snapshot_date",
+    "record_id",
+    "log_name",
+    "log_base_url",
+    "index",
+    "ct_timestamp_ms",
+    "entry_type",
+    "x509",
+    "precert"
+  ],
+  "properties": {
+    "schema_version": { "type": "integer", "minimum": 1 },
+    "snapshot_date": { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$" },
+    "record_id": { "type": "string", "minLength": 3, "maxLength": 200 },
+
+    "log_name": { "type": "string", "minLength": 1 },
+    "log_base_url": { "type": "string", "minLength": 1 },
+    "index": { "type": "integer", "minimum": 0 },
+    "ct_timestamp_ms": { "type": "integer", "minimum": 0 },
+    "entry_type": { "type": "string", "enum": ["x509", "precert"] },
+
+    "x509": {
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "required": [
+        "cert_sha256",
+        "spki_sha256",
+        "serial_number_hex",
+        "serial_number_non_positive",
+        "not_before",
+        "not_after",
+        "subject_cn",
+        "subject_o",
+        "issuer_cn",
+        "issuer_o",
+        "san_dns",
+        "spki_algorithm",
+        "spki_bits",
+        "signature_algorithm_oid",
+        "is_ca"
+      ],
+      "properties": {
+        "cert_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "spki_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+
+        "serial_number_hex": { "type": "string" },
+        "serial_number_non_positive": { "type": "boolean" },
+
+        "not_before": { "type": "string" },
+        "not_after": { "type": "string" },
+
+        "subject_cn": { "type": ["string", "null"] },
+        "subject_o": { "type": ["string", "null"] },
+        "issuer_cn": { "type": ["string", "null"] },
+        "issuer_o": { "type": ["string", "null"] },
+
+        "san_dns": { "type": "array", "items": { "type": "string" } },
+
+        "spki_algorithm": { "type": ["string", "null"] },
+        "spki_bits": { "type": ["integer", "null"] },
+        "signature_algorithm_oid": { "type": ["string", "null"] },
+        "is_ca": { "type": ["boolean", "null"] }
+      }
+    },
+
+    "precert": {
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "required": [
+        "issuer_key_hash_hex",
+        "tbs_sha256",
+        "tbs_certificate_der_b64",
+        "leaf_guess"
+      ],
+      "properties": {
+        "issuer_key_hash_hex": { "type": ["string", "null"] },
+        "tbs_sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+        "tbs_certificate_der_b64": { "type": "string", "minLength": 1 },
+        "leaf_guess": {
+          "type": ["object", "null"],
+          "additionalProperties": false,
+          "required": ["subject_cn", "issuer_cn", "san_dns"],
+          "properties": {
+            "subject_cn": { "type": ["string", "null"] },
+            "issuer_cn": { "type": ["string", "null"] },
+            "san_dns": { "type": "array", "items": { "type": "string" } }
+          }
+        }
+      }
+    }
+  },
+
+  "allOf": [
+    {
+      "if": { "properties": { "entry_type": { "const": "x509" } } },
+      "then": { "properties": { "x509": { "type": "object" }, "precert": { "type": "null" } } }
+    },
+    {
+      "if": { "properties": { "entry_type": { "const": "precert" } } },
+      "then": { "properties": { "precert": { "type": "object" }, "x509": { "type": "null" } } }
+    }
+  ]
+}

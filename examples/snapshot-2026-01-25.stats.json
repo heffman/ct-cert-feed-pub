@@ -1,0 +1,26 @@
+{
+  "by_log": {
+    "Cloudflare Nimbus2026": {
+      "precert": 36,
+      "records": 200,
+      "x509": 164
+    },
+    "Google Argon2026h1": {
+      "precert": 72,
+      "records": 200,
+      "x509": 128
+    },
+    "Google Xenon2026h1": {
+      "precert": 58,
+      "records": 200,
+      "x509": 142
+    }
+  },
+  "schema_version": 1,
+  "snapshot_date": "2026-01-15",
+  "totals": {
+    "precert": 166,
+    "records": 600,
+    "x509": 434
+  }
+}
