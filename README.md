@@ -45,7 +45,9 @@ Snapshots are published as:
 Example layout:
 
 date=2026-01-31/
+
 ├── records.jsonl.gz
+
 └── stats.json
 
 
