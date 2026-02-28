@@ -1,37 +1,49 @@
 # ct-cert-feed (Artifacts & Schema)
 
-Daily, normalized TLS certificate lifecycle snapshots derived from selected public Certificate Transparency (CT) logs.
+Download normalized, deterministic Certificate Transparency (CT) log snapshots as bulk JSON.
 
-This repository contains:
-
-- The canonical snapshot schema
-- Documentation
-- Sample artifacts
-- Coverage notes
-- Access information
+This repository publishes the canonical schema and sample artifacts for a daily CT snapshot dataset.
 
 It does NOT contain the ingestion or production pipeline code.
 
 ---
 
-## What This Dataset Is
+## Why This Exists
 
-A daily, deterministic snapshot of certificate lifecycle facts extracted from public CT logs.
+Building a Certificate Transparency ingestion pipeline is non-trivial.
 
-Each snapshot contains one record per CT entry and includes:
+Common challenges include:
 
-- CT log metadata
+- Fetching CT log entries at scale
+- Handling x509 vs precertificate entries correctly
+- De-duplicating entries across logs
+- Parsing and normalizing SAN DNS names
+- Managing schema stability over time
+- Replaying CT logs deterministically by date
+- Avoiding brittle ad-hoc JSON extraction logic
+
+ct-cert-feed provides a normalized daily snapshot so teams can focus on analysis instead of log scraping.
+
+---
+
+## What This Dataset Provides
+
+A deterministic daily snapshot of certificate lifecycle facts derived from selected public CT logs.
+
+Each record represents one CT entry and includes:
+
+- CT log metadata (log name, index, timestamp)
 - Entry timestamp
 - Certificate serial number
-- Validity window
-- Subject and issuer fields
+- Validity window (`not_before`, `not_after`)
+- Subject and issuer attributes
 - SAN DNS names
-- Public key algorithm and size
+- Public key algorithm and key size
 - Signature algorithm
 - Precertificate metadata (when applicable)
 
-The dataset contains **facts only**.  
-It does not assign risk scores or judgments.
+The dataset contains facts only.  
+No scoring. No policy judgments. No enrichment.
 
 ---
 
@@ -39,10 +51,10 @@ It does not assign risk scores or judgments.
 
 Snapshots are published as:
 
-- `records.jsonl.gz` (newline-delimited JSON)
-- `stats.json` (summary + per-log breakdown)
+- `records.jsonl.gz` — newline-delimited JSON (gzip compressed)
+- `stats.json` — totals and per-log breakdown
 
-Example layout:
+Example structure:
 
 date=2026-01-31/
 
@@ -51,46 +63,69 @@ date=2026-01-31/
 └── stats.json
 
 
-See `schemas/v1/` for canonical definitions.
+This format is designed for:
+
+- Bulk ingestion into Postgres
+- Offline cryptographic analysis
+- Certificate lifecycle analytics
+- Historical CT replay
+- Asset inventory correlation
 
 ---
 
 ## Schema
 
-Authoritative schemas:
+Canonical definitions:
 
 - `schemas/v1/normalized_record.schema.json`
 - `schemas/v1/stats.schema.json`
 
 Schema versioning is strict and monotonic.
 
----
-
-## Coverage
-
-This dataset is derived from a selected set of major public CT logs.
-
-It prioritizes:
-
-- Consistency
-- Stability
-- Deterministic structure
-- Operational simplicity
-
-It does not attempt exhaustive internet coverage.
-
-See `docs/coverage.md`.
+Breaking changes require a version increment.
 
 ---
 
 ## Example Artifacts
 
-See `examples/` for:
+See `examples/` for representative snapshot samples:
 
-- Sample `records.jsonl`
-- Sample `stats.json`
+- Example `records.jsonl`
+- Example `stats.json`
 
-These are representative but limited in size.
+These samples are limited in size but reflect production structure.
+
+---
+
+## Coverage
+
+The dataset is derived from a selected set of major public CT logs.
+
+Goals:
+
+- Deterministic structure
+- Stable normalization
+- Operational simplicity
+
+Non-goals:
+
+- Exhaustive internet coverage
+- Real-time monitoring
+- Alerting or notification
+
+See `docs/coverage.md`.
+
+---
+
+## Common Use Cases
+
+- Certificate inventory systems
+- Security research
+- Compliance analytics
+- CT historical replay
+- Passive asset discovery
+- Cryptographic ecosystem research
+- Building higher-level CT intelligence systems
 
 ---
 
@@ -100,13 +135,12 @@ Current daily snapshots are available via authenticated HTTP.
 
 If you are evaluating this dataset for:
 
-- Security research
-- Certificate lifecycle analytics
-- Compliance tooling
-- Passive inventory systems
-- Bulk cryptographic research
+- Certificate transparency bulk download
+- CT log normalization
+- Historical CT analysis
+- Ingesting CT logs into your own pipeline
 
-Open an issue labeled `access` describing your use case.
+Open an issue labeled `access` and describe your intended use case.
 
 ---
 
@@ -115,10 +149,10 @@ Open an issue labeled `access` describing your use case.
 This is NOT:
 
 - A TLS monitoring service
-- An alerting system
 - A vulnerability scanner
-- A policy enforcement engine
-- An active scanner
+- A policy engine
+- A compliance enforcement tool
+- An active internet scanner
 
 Interpretation belongs downstream.
 
